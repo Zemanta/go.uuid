@@ -188,22 +188,27 @@ func (u UUID) Bytes() []byte {
 	return u[:]
 }
 
+// Bytes returns canonical bytes slice representation of UUID.
+func (u UUID) canonicalBytes(offset int) []byte {
+	buf := make([]byte, 36 + 2 * offset)
+
+	hex.Encode(buf[0 + offset:8+ offset], u[0:4])
+	buf[8+ offset] = dash
+	hex.Encode(buf[9+ offset:13+ offset], u[4:6])
+	buf[13+ offset] = dash
+	hex.Encode(buf[14+ offset:18+ offset], u[6:8])
+	buf[18+ offset] = dash
+	hex.Encode(buf[19+ offset:23+ offset], u[8:10])
+	buf[23+ offset] = dash
+	hex.Encode(buf[24+ offset:36+ offset], u[10:])
+
+	return buf
+}
+
 // Returns canonical string representation of UUID:
 // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 func (u UUID) String() string {
-	buf := make([]byte, 36)
-
-	hex.Encode(buf[0:8], u[0:4])
-	buf[8] = dash
-	hex.Encode(buf[9:13], u[4:6])
-	buf[13] = dash
-	hex.Encode(buf[14:18], u[6:8])
-	buf[18] = dash
-	hex.Encode(buf[19:23], u[8:10])
-	buf[23] = dash
-	hex.Encode(buf[24:], u[10:])
-
-	return string(buf)
+	return string(u.canonicalBytes(0))
 }
 
 // SetVersion sets version bits.
@@ -219,18 +224,8 @@ func (u *UUID) SetVariant() {
 // MarshalJSON implements the json.Marshaler interface.
 // The encoding is the same as returned by String except the quotation marks are added around.
 func (u UUID) MarshalJSON() (data []byte, err error) {
-	data = make([]byte, 38)
-
+	data = u.canonicalBytes(1)
 	data[0] = quotationMark
-	hex.Encode(data[1:9], u[0:4])
-	data[9] = dash
-	hex.Encode(data[10:14], u[4:6])
-	data[14] = dash
-	hex.Encode(data[15:19], u[6:8])
-	data[19] = dash
-	hex.Encode(data[20:24], u[8:10])
-	data[24] = dash
-	hex.Encode(data[25:37], u[10:])
 	data[37] = quotationMark
 
 	return
@@ -239,7 +234,7 @@ func (u UUID) MarshalJSON() (data []byte, err error) {
 // MarshalText implements the encoding.TextMarshaler interface.
 // The encoding is the same as returned by String.
 func (u UUID) MarshalText() (text []byte, err error) {
-	text = []byte(u.String())
+	text = u.canonicalBytes(0)
 	return
 }
 
@@ -294,42 +289,7 @@ func (u *UUID) UnmarshalJSON(data []byte) (err error) {
 // "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}",
 // "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 func (u *UUID) UnmarshalText(text []byte) (err error) {
-	if len(text) < 32 {
-		err = fmt.Errorf("uuid: UUID string too short: %s", text)
-		return
-	}
-
-	t := text[:]
-
-	if bytes.Equal(t[:9], urnPrefix) {
-		t = t[9:]
-	} else if t[0] == '{' {
-		t = t[1:]
-	}
-
-	b := u[:]
-
-	for _, byteGroup := range byteGroups {
-		if t[0] == '-' {
-			t = t[1:]
-		}
-
-		if len(t) < byteGroup {
-			err = fmt.Errorf("uuid: UUID string too short: %s", text)
-			return
-		}
-
-		_, err = hex.Decode(b[:byteGroup/2], t[:byteGroup])
-
-		if err != nil {
-			return
-		}
-
-		t = t[byteGroup:]
-		b = b[byteGroup/2:]
-	}
-
-	return
+	return u.UnmarshalJSON(text)
 }
 
 // MarshalBinary implements the encoding.BinaryMarshaler interface.

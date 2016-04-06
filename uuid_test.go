@@ -42,6 +42,17 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestCanonicalBytes(t *testing.T) {
+	bytes := NamespaceDNS.canonicalBytes(0)
+	expected := []byte{54, 98, 97, 55, 98, 56, 49, 48, 45, 57, 100, 97, 100, 45, 49, 49, 100, 49, 45, 56, 48, 98, 52, 45, 48, 48, 99, 48, 52, 102, 100, 52, 51, 48, 99, 56}
+
+	for i := 0; i < len(bytes); i++ {
+		if bytes[i] != expected[i] {
+			t.Errorf("Incorrect string representation for UUID: %v", NamespaceDNS.canonicalBytes(0))
+		}
+	}
+}
+
 func TestEqual(t *testing.T) {
 	if !Equal(NamespaceDNS, NamespaceDNS) {
 		t.Errorf("Incorrect comparison of %s and %s", NamespaceDNS, NamespaceDNS)

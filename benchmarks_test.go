@@ -136,6 +136,13 @@ func BenchmarkUnmarshalText(b *testing.B) {
 	}
 }
 
+func BenchmarkMarshalToCanonicalBytes(b *testing.B) {
+	u := NewV4()
+	for i := 0; i < b.N; i++ {
+		u.canonicalBytes(0)
+	}
+}
+
 func BenchmarkMarshalToString(b *testing.B) {
 	u := NewV4()
 	for i := 0; i < b.N; i++ {
