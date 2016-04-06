@@ -42,6 +42,17 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestCanonicalBytes(t *testing.T) {
+	bytes := NamespaceDNS.canonicalBytes(0)
+	expected := []byte{54, 98, 97, 55, 98, 56, 49, 48, 45, 57, 100, 97, 100, 45, 49, 49, 100, 49, 45, 56, 48, 98, 52, 45, 48, 48, 99, 48, 52, 102, 100, 52, 51, 48, 99, 56}
+
+	for i := 0; i < len(bytes); i++ {
+		if bytes[i] != expected[i] {
+			t.Errorf("Incorrect string representation for UUID: %v", NamespaceDNS.canonicalBytes(0))
+		}
+	}
+}
+
 func TestEqual(t *testing.T) {
 	if !Equal(NamespaceDNS, NamespaceDNS) {
 		t.Errorf("Incorrect comparison of %s and %s", NamespaceDNS, NamespaceDNS)
@@ -251,6 +262,20 @@ func TestFromBytesOrNil(t *testing.T) {
 	}
 }
 
+func TestMarshalJSON(t *testing.T) {
+	u := UUID{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}
+	b1 := []byte("\"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"")
+
+	b2, err := u.MarshalJSON()
+	if err != nil {
+		t.Errorf("Error marshaling UUID: %s", err)
+	}
+
+	if !bytes.Equal(b1, b2) {
+		t.Errorf("Marshaled UUID should be %s, got %s", b1, b2)
+	}
+}
+
 func TestMarshalText(t *testing.T) {
 	u := UUID{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}
 	b1 := []byte("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
@@ -263,6 +288,50 @@ func TestMarshalText(t *testing.T) {
 	if !bytes.Equal(b1, b2) {
 		t.Errorf("Marshaled UUID should be %s, got %s", b1, b2)
 	}
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	u := UUID{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}
+	b0 := []byte("\"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"")
+	b1 := []byte("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	b2 := []byte("\"{6ba7b810-9dad-11d1-80b4-00c04fd430c8}\"")
+
+	u1 := UUID{}
+	err := u1.UnmarshalJSON(b0)
+	if err != nil {
+		t.Errorf("Error unmarshaling UUID: %s", err)
+	}
+
+	if !Equal(u, u1) {
+		t.Errorf("UUIDs should be equal: %s and %s", u, u1)
+	}
+
+	err = u1.UnmarshalJSON(b1)
+	if err != nil {
+		t.Errorf("Error unmarshaling UUID: %s", err)
+	}
+
+	if !Equal(u, u1) {
+		t.Errorf("UUIDs should be equal: %s and %s", u, u1)
+	}
+
+	err = u1.UnmarshalJSON(b2)
+	if err != nil {
+		t.Errorf("Error unmarshaling UUID: %s", err)
+	}
+
+	if !Equal(u, u1) {
+		t.Errorf("UUIDs should be equal: %s and %s", u, u1)
+	}
+
+	b3 := []byte("")
+	u2 := UUID{}
+
+	err = u2.UnmarshalJSON(b3)
+	if err == nil {
+		t.Errorf("Should return error trying to unmarshal from empty string")
+	}
+
 }
 
 func TestUnmarshalText(t *testing.T) {

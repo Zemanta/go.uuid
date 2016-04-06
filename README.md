@@ -1,7 +1,7 @@
 # UUID package for Go language
 
 [![Build Status](https://travis-ci.org/satori/go.uuid.png?branch=master)](https://travis-ci.org/satori/go.uuid)
-[![GoDoc](http://godoc.org/github.com/satori/go.uuid?status.png)](http://godoc.org/github.com/satori/go.uuid)
+[![GoDoc](http://godoc.org/github.com/Zemanta/go.uuid?status.png)](http://godoc.org/github.com/Zemanta/go.uuid)
 
 This package provides pure Go implementation of Universally Unique Identifier (UUID). Supported both creation and parsing of UUIDs.
 
@@ -18,7 +18,7 @@ Supported versions:
 
 Use the `go` command:
 
-	$ go get github.com/satori/go.uuid
+	$ go get github.com/Zemanta/go.uuid
 
 ## Requirements
 
@@ -31,7 +31,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
+	"github.com/Zemanta/go.uuid"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 
 ## Documentation
 
-[Documentation](http://godoc.org/github.com/satori/go.uuid) is hosted at GoDoc project.
+[Documentation](http://godoc.org/github.com/Zemanta/go.uuid) is hosted at GoDoc project.
 
 ## Links
 * [RFC 4122](http://tools.ietf.org/html/rfc4122)
@@ -61,4 +61,4 @@ func main() {
 Copyright (C) 2013-2016 by Maxim Bublis <b@codemonkey.ru>.
 
 UUID package released under MIT License.
-See [LICENSE](https://github.com/satori/go.uuid/blob/master/LICENSE) for details.
+See [LICENSE](https://github.com/Zemanta/go.uuid/blob/master/LICENSE) for details.
